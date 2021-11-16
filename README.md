@@ -4,7 +4,7 @@ Radio builder utility.
 
 Usage:
 
-.\RadioBuilder.exe <radio station uasset file path> <path to tracks> <path inside .pak> <output mod filename>
+.\RadioBuilder.exe "radio station uasset file path" "path to tracks" "path inside .pak" "output mod filename"
 
 Example:
   
