@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30711.63
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RadioBuilder", "RadioBuilder\RadioBuilder.csproj", "{B3BA66E7-AA15-44F6-B9AA-F7AF80BD16AF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B3BA66E7-AA15-44F6-B9AA-F7AF80BD16AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3BA66E7-AA15-44F6-B9AA-F7AF80BD16AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3BA66E7-AA15-44F6-B9AA-F7AF80BD16AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3BA66E7-AA15-44F6-B9AA-F7AF80BD16AF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {70311203-0FAB-4119-8E36-B42EC6D51D18}
+	EndGlobalSection
+EndGlobal
