@@ -38,7 +38,7 @@ namespace RadioBuilder
 
             Process process = new() {
                 EnableRaisingEvents = true,
-                StartInfo = new() {
+                StartInfo = new ProcessStartInfo() {
                     FileName = Path.Combine(AppContext.BaseDirectory, "unrealPak", "UnrealPak-With-Compression.bat"),
                     Arguments =  Path.Combine(AppContext.BaseDirectory, "temp"),
                     WorkingDirectory = Path.Combine(AppContext.BaseDirectory, "temp"),

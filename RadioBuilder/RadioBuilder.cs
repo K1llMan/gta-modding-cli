@@ -23,32 +23,41 @@ namespace RadioBuilder
 
         private PropertyData GetTrackStruct(string path, string location, ref float startTime)
         {
-            UAsset trackAsset = new UAsset(path, version);
-            NormalExport track = (NormalExport)trackAsset.Exports.First();
-            float duration = ((FloatPropertyData) track.Data.First(p => p.Name.Value.Value == "Duration")).Value;
-            uint totalSamples = Convert.ToUInt32(((FloatPropertyData) track.Data.First(p => p.Name.Value.Value == "TotalSamples")).Value);
+            try
+            {
+                UAsset trackAsset = new(path, version);
+                NormalExport track = (NormalExport)trackAsset.Exports.First();
+                float duration = ((FloatPropertyData) track.Data.First(p => p.Name.Value.Value == "Duration")).Value;
+                uint totalSamples = Convert.ToUInt32(((FloatPropertyData) track.Data.First(p => p.Name.Value.Value == "TotalSamples")).Value);
 
-            string fileName = Path.GetFileNameWithoutExtension(path);
-            FName pathName = new FName($"{location.TrimEnd('/')}/{fileName}.{fileName}");
-            asset.AddNameReference(pathName.Value);
+                string fileName = Path.GetFileNameWithoutExtension(path);
+                FName pathName = new($"{location.TrimEnd('/')}/{fileName}.{fileName}");
+                asset.AddNameReference(pathName.Value);
 
-            StructPropertyData data = new StructPropertyData {
-                Name = new FName("SoundWaveAssets"),
-                StructType = new FName("CachedSoundWaveAsset"),
-                Value = new List<PropertyData> {
-                    new FloatPropertyData {Name = new FName("Duration"), Value = duration },
-                    new FloatPropertyData { Name = new FName("ActualStartTime"), Value = startTime },
-                    new UInt32PropertyData { Name = new FName("TotalNumFrames"), Value = totalSamples },
-                    new SoftObjectPropertyData {
-                        Name = new FName("SoundAsset"),
-                        Value = pathName
+                StructPropertyData data = new()
+                {
+                    Name = new FName("SoundWaveAssets"),
+                    StructType = new FName("CachedSoundWaveAsset"),
+                    Value = new List<PropertyData> {
+                        new FloatPropertyData {Name = new FName("Duration"), Value = duration },
+                        new FloatPropertyData { Name = new FName("ActualStartTime"), Value = startTime },
+                        new UInt32PropertyData { Name = new FName("TotalNumFrames"), Value = totalSamples },
+                        new SoftObjectPropertyData {
+                            Name = new FName("SoundAsset"),
+                            Value = pathName
+                        }
                     }
-                }
-            };
+                };
 
-            startTime += duration;
+                startTime += duration;
 
-            return data;
+                return data;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Wrong asset file: {path}");
+                throw;
+            }
         }
 
         #endregion Aux functions
