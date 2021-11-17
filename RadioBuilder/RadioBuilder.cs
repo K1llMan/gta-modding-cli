@@ -29,7 +29,7 @@ namespace RadioBuilder
             uint totalSamples = Convert.ToUInt32(((FloatPropertyData) track.Data.First(p => p.Name.Value.Value == "TotalSamples")).Value);
 
             string fileName = Path.GetFileNameWithoutExtension(path);
-            FName pathName = new FName($"{location}/{fileName}.{fileName}");
+            FName pathName = new FName($"{location.TrimEnd('/')}/{fileName}.{fileName}");
             asset.AddNameReference(pathName.Value);
 
             StructPropertyData data = new StructPropertyData {

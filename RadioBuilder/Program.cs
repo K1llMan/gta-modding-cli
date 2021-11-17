@@ -27,7 +27,7 @@ namespace RadioBuilder
 
             builder.AddTracks(args[1], args[2]);
 
-            string tempDir = $"temp\\Gameface\\Content\\{args[2].Replace(" /", "\\").TrimStart('\\')}";
+            string tempDir = $"temp\\{args[2].Replace("/", "\\").TrimStart('\\').Replace("Game", "Gameface\\Content")}";
             Directory.CreateDirectory(tempDir);
             foreach (string file in Directory.GetFiles(args[1]))
             {
@@ -56,10 +56,11 @@ namespace RadioBuilder
             process.BeginOutputReadLine();
             process.WaitForExit();
 
-            File.Move("temp.pak", args[3]);
+            File.Move(Path.Combine(AppContext.BaseDirectory, "temp.pak"), args[3]);
             ClearTemp();
 
-            Console.WriteLine($"Created radio mod: {args[0]}");
+            Console.WriteLine($"Created radio mod: {args[3]}");
+            Console.ReadKey();
         }
     }
 }
