@@ -39,7 +39,7 @@ namespace GtaModdingCli.Commands.Classes
                     Name = new FName("SoundWaveAssets"),
                     StructType = new FName("CachedSoundWaveAsset"),
                     Value = new List<PropertyData> {
-                        new FloatPropertyData {Name = new FName("Duration"), Value = duration },
+                        new FloatPropertyData { Name = new FName("Duration"), Value = duration },
                         new FloatPropertyData { Name = new FName("ActualStartTime"), Value = startTime },
                         new UInt32PropertyData { Name = new FName("TotalNumFrames"), Value = totalSamples },
                         new SoftObjectPropertyData {
