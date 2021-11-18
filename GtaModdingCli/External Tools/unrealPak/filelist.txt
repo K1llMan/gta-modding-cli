@@ -1,0 +1,1 @@
+"D:\SVC\gta-builder\gta-radio-builder-main\RadioBuilder\bin\Debug\net5.0\temp\*.*" "..\..\..\*.*" 

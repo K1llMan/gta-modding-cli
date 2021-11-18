@@ -5,7 +5,9 @@ VisualStudioVersion = 16.0.30711.63
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RadioBuilder", "RadioBuilder\RadioBuilder.csproj", "{B3BA66E7-AA15-44F6-B9AA-F7AF80BD16AF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UAssetAPI", "UAssetAPI\UAssetAPI\UAssetAPI.csproj", "{178417EC-1177-413E-BE85-C83AECD64279}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UAssetAPI", "UAssetAPI\UAssetAPI\UAssetAPI.csproj", "{178417EC-1177-413E-BE85-C83AECD64279}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GtaModdingCli", "GtaModdingCli\GtaModdingCli.csproj", "{C259E6FD-7006-45EA-BC7C-671DF4E16055}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{178417EC-1177-413E-BE85-C83AECD64279}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{178417EC-1177-413E-BE85-C83AECD64279}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{178417EC-1177-413E-BE85-C83AECD64279}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C259E6FD-7006-45EA-BC7C-671DF4E16055}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C259E6FD-7006-45EA-BC7C-671DF4E16055}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C259E6FD-7006-45EA-BC7C-671DF4E16055}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C259E6FD-7006-45EA-BC7C-671DF4E16055}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
