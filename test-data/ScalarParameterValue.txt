@@ -1,0 +1,48 @@
+Struct header:
+24 00 00 00 fullType index
+00 00 00 00 number
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 GUID
+00 byte
+
+Struct data:
+19 00 00 00 name: Metallic
+00 00 00 00 number
+02 FF FF FF FF 00 00 80 3F 4F AF 63 F9 84 44 03 
+4C AD E5 4A BE C3 96 1F 13 
+
+02 FF FF FF FF 00 00 80 
+3F 4F AF 63 F9 84 44 03 
+4C AD E5 4A BE C3 96 1F 
+13 
+
+
+
+23 00 00 00 name: RefractionDepthBias
+00 00 00 00 
+02 FF FF FF FF 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 
+
+TextureParameterValues:
+
+Struct header:
+2С 00 00 00 fullType index
+00 00 00 00 number
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 GUID
+00 byte
+
+
+2543
+2580
+TextureParameterValue:
+0D 00 00 00 name: BaseColor
+00 00 00 00 
+02 FF FF FF FF EE FF FF FF 3F BF 0E 10 E7 56 96 
+42 A5 4A A5 55 12 C9 31 D7
+
+TextureParameterValue:
+0D 00 00 00 name: Normal
+00 00 00 00 
+02 FF FF FF FF EE FF FF FF 3F BF 0E 10 E7 56 96 
+42 A5 4A A5 55 12 C9 31 D7
+
+MaterialTextureInfo

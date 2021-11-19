@@ -7,9 +7,29 @@
         "ObjectName": "MaterialInstanceConstant MI_Env_P_Base",
         "ObjectPath": "Gameface/Content/Common/Materials/MI_Env_P_Base.0"
       },
-      "ScalarParameterValues": null,
-      "TextureParameterValues": null,
+      "ScalarParameterValues": [
+        {
+          "name": "Metallic",
+          "value": 0
+        },
+        {
+          "RefractionDepthBias": ""
+        }
+      ],
+      "TextureParameterValues": [
+        {
+          "BaseColor": ""
+        },
+        {
+
+        },
+        {
+
+        }
+      ],
       "BasePropertyOverrides": {
+        "ScalarParameterValues":
+        "MaterialInstanceBasePropertyOverrides",
         "OpacityMaskClipValue": 0.3333
       },
       "CachedReferencedTextures": [
@@ -30,7 +50,11 @@
           "ObjectPath": "Engine/Content/EngineResources/WhiteSquareTexture_Masks.0"
         }
       ],
-      "TextureStreamingData": null,
+      "TextureStreamingData": [
+        {
+          "MaterialTextureInfo"
+        }
+      ],
       "AssetUserData": [
         null
       ]
