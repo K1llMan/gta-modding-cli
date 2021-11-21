@@ -1,11 +1,35 @@
-# gta-radio-builder
+# GTA Modding CLI
 
-Radio builder utility.
+CLI (Command Line Interface) for GTA modding utility functions.
 
-Usage:
+## Usage
 
-.\RadioBuilder.exe "radio station uasset file path" "path to tracks" "path inside .pak" "output mod filename"
+.\GtaModdingCli.exe [command] [argument]
 
-Example:
-  
-.\RadioBuilder.exe "e:\RADIO_FLASH.uasset" "e:\tracks\FlashFM" "/Game/GTA3/Audio/Streams/RadioStreams/FlashFM" "500-my_radio_P.pak"
+Argument list can be obtained by using "help" command:
+
+`Example: .\GtaModdingCli.exe help material`
+
+## Commands
+
+**h|help** - CLI help
+
+**radio** - Radio Builder function
+
+**material** - texture path replacing command in material
+
+All commands has example bat.
+
+## Building
+
+1. Clone repository and initialize submodules
+
+    ```
+    git clone https://github.com/K1llMan/gta-radio-builder.git
+    cd gta-radio-builder
+    git submodule update --init --recursive
+    ```
+2. Build 
+    ``` 
+    dotnet build
+    ```
