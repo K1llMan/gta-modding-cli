@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace GtaModdingCli.Common
+﻿namespace GtaModdingCli.Common
 {
     /// <summary>
     /// Abstract class for CLI command

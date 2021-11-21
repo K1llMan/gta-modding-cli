@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GtaModdingCli.Common
 {
@@ -37,7 +34,7 @@ namespace GtaModdingCli.Common
             Process process = new()
             {
                 EnableRaisingEvents = true,
-                StartInfo = new()
+                StartInfo = new ProcessStartInfo()
                 {
                     FileName = Path.Combine(AppContext.BaseDirectory, "unrealPak", "UnrealPak-With-Compression.bat"),
                     Arguments = string.Join(" ", args),
