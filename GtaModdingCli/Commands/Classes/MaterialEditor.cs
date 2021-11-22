@@ -111,6 +111,7 @@ namespace GtaModdingCli.Commands.Classes
 
             ChangeExportName(material, outputPath);
 
+            // TODO: asset cleanup
             /*
             if (material is NormalExport ne)
             {

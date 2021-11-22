@@ -1,12 +1,5 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-
-using GtaModdingCli.Commands.Classes;
+﻿using GtaModdingCli.Commands.Classes;
 using GtaModdingCli.Common;
-using GtaModdingCli.Extensions;
-
-using UAssetAPI;
 
 namespace GtaModdingCli.Commands
 {
@@ -41,7 +34,7 @@ namespace GtaModdingCli.Commands
     {
         public override void Execute(string[] args)
         {
-            MaterialEditor editor = new MaterialEditor();
+            MaterialEditor editor = new();
 
             switch (args[0])
             {
