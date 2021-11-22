@@ -1,0 +1,10 @@
+{
+    "material": "/Game/Weapons/m60/MI_m60", 
+    "textures": {
+        "BaseColor": "/Game/Weapons/m60/T_m60_BC",
+        "Metallic": "/Game/Weapons/m60/T_m60_M",
+        "Normal": "/Game/Weapons/m60/T_m60_N",
+        "Roughness": "/Game/Weapons/m60/T_m60_R",
+        "AmbientOcclusion": ""
+    }
+}
