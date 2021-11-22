@@ -37,12 +37,25 @@ namespace GtaModdingCli.Commands.Classes
             return null;
         }
 
-        private void ChangeExportName(Export export, string name)
+        private void ChangeExportName(Export export, string path)
         {
-            int reference = export.Asset.SearchNameReference(export.ObjectName.Value);
-            export.Asset.SetNameReference(reference, FString.FromString(name));
+            path = Path.GetFileNameWithoutExtension(path).Replace("\\", "/");
+            string exportName = export.ObjectName.Value.Value;
 
-            export.ObjectName = FName.FromString(name);
+            FString[] values = export.Asset.GetNameMapIndexList()
+                .Where(n => n.Value.Contains(exportName))
+                .ToArray();
+
+            foreach (FString value in values)
+            {
+                int reference = export.Asset.SearchNameReference(value);
+                string replace = value.Value == exportName
+                    ? GetObjectName(path)
+                    : path;
+                export.Asset.SetNameReference(reference, FString.FromString(replace));
+            }
+
+            export.ObjectName = FName.FromString(GetObjectName(path));
         }
 
         private Import[] GetTextureImports(UAsset asset)
@@ -96,8 +109,9 @@ namespace GtaModdingCli.Commands.Classes
             if (material == null)
                 throw new Exception("Cannot find material export");
 
-            ChangeExportName(material, Path.GetFileNameWithoutExtension(outputPath));
+            ChangeExportName(material, outputPath);
 
+            /*
             if (material is NormalExport ne)
             {
                 // Clean properties
@@ -105,22 +119,32 @@ namespace GtaModdingCli.Commands.Classes
                 if (property == null)
                     throw new Exception("Cannot find texture parameters");
 
+                // Clean imports
+                foreach (PropertyData data in property.Value)
+                {
+                    FTextureParameter parameter = GetProperty<TextureParameterPropertyData>(data, "TextureParameterValues").Value;
+
+                    // Link and texture
+
+                    Import textureName = parameter.Value.ToImport(asset);
+                    Import texturePath = textureName.OuterIndex.ToImport(asset);
+
+                    textureName.ClassPackage = FName.FromString("/Script/CoreUObject");
+                    textureName.ClassName = FName.FromString("Package");
+                    textureName.OuterIndex = new FPackageIndex();
+                    textureName.ObjectName = FName.FromString("/Engine/EngineMaterials/Good64x64TilingNoiseHighFreq");
+
+                    texturePath.ClassPackage = FName.FromString("/Script/CoreUObject");
+                    texturePath.ClassName = FName.FromString("Package");
+                    texturePath.OuterIndex = new FPackageIndex();
+                    texturePath.ObjectName = FName.FromString("/Engine/EngineMaterials/Good64x64TilingNoiseHighFreq");
+                }
+
                 property.Value = new PropertyData[] { };
                 property = GetProperty<ArrayPropertyData>(ne, "TextureStreamingData");
                 property.Value = new PropertyData[] { };
-
-                // Clean imports
-                foreach (Import import in GetTextureImports(asset))
-                {
-                    Import texture = import.OuterIndex.ToImport(asset);
-                    if (texture.ObjectName.Value.Value.Contains("Engine"))
-                        continue;
-
-                    // Link and texture
-                    asset.Imports.Remove(import);
-                    asset.Imports.Remove(texture);
-                }
             }
+            */
 
             asset.Write(outputPath);
         }
@@ -146,40 +170,49 @@ namespace GtaModdingCli.Commands.Classes
             if (!File.Exists(assetFileName))
                 throw new Exception("\"MI_empty.uasset\" does not exist in \"sources\" directory");
 
-            UAsset asset = new UAsset(assetFileName, UE4Version.VER_UE4_26);
+            UAsset asset = new(assetFileName, UE4Version.VER_UE4_26);
             Export material = asset.Exports.FirstOrDefault(e => e.ObjectName.Value.Value.StartsWith("MI_"));
 
             if (material is NormalExport ne)
             {
                 // Replace material name
-                ChangeExportName(material, GetObjectName(materialPath));
+                ChangeExportName(material, materialPath);
 
-                List<TextureParameterPropertyData> textureParameters = new List<TextureParameterPropertyData>();
-                List<MaterialTextureInfoPropertyData> textureStreaming = new List<MaterialTextureInfoPropertyData>();
+                List<StructPropertyData> textureParameters = new();
+                List<StructPropertyData> textureStreaming = new();
 
                 foreach ((string Type, string Path) texture in textures)
                 {
                     // Add new texture
                     FPackageIndex textureIndex = AddTextureImport(asset, texture.Path);
 
-                    textureParameters.Add(new TextureParameterPropertyData(FName.FromString("TextureParameterValues")) {
-                        Value = new FTextureParameter {
-                            Guid = new Guid(),
-                            Info = new FMaterialParameterInfo {
-                                Association = EMaterialParameterAssociation.GlobalParameter,
-                                Index = -1,
-                                Name = FName.FromString(texture.Type)
-                            },
-                            Value = textureIndex
+                    textureParameters.Add(new StructPropertyData(FName.FromString("TextureParameterValues")){
+                        StructType = FName.FromString("TextureParameterValue"),
+                        Value = new List<PropertyData> {
+                            new TextureParameterPropertyData(FName.FromString("TextureParameterValues")) {
+                                Value = new FTextureParameter {
+                                    Guid = Guid.NewGuid(),
+                                    Info = new FMaterialParameterInfo {
+                                        Association = EMaterialParameterAssociation.GlobalParameter,
+                                        Index = -1,
+                                        Name = FName.FromString("BaseColor")
+                                    },
+                                    Value = textureIndex
+                                }
+                            }
                         }
                     });
-
-                    textureStreaming.Add(new MaterialTextureInfoPropertyData(FName.FromString("TextureStreamingData")) {
-                        Value = new FMaterialTextureInfo 
-                        {
-                            UVChannelIndex = 0,
-                            SamplingScale = 1,
-                            TextureName = FName.FromString(GetObjectName(texture.Path))
+                    
+                    textureStreaming.Add(new StructPropertyData(FName.FromString("TextureStreamingData")) {
+                        StructType = FName.FromString("MaterialTextureInfo"),
+                        Value = new List<PropertyData> {
+                            new MaterialTextureInfoPropertyData(FName.FromString("TextureStreamingData")) {
+                                Value = new FMaterialTextureInfo {
+                                    UVChannelIndex = 0,
+                                    SamplingScale = 1,
+                                    TextureName = FName.FromString(GetObjectName(texture.Path))
+                                }   
+                            }
                         }
                     });
                 }
@@ -208,18 +241,13 @@ namespace GtaModdingCli.Commands.Classes
 
             if (export is NormalExport ne)
             {
-                ArrayPropertyData materials = GetProperty<ArrayPropertyData>(ne, "StaticMaterials");
-                PropertyData material = materials.Value
-                    .FirstOrDefault(p => GetProperty<NamePropertyData>(p, "MaterialSlotName").Value.Value.Value == materialName);
-                if (material == null)
+                Import matNameImport = asset.Imports.FirstOrDefault(i => i.ObjectName.Value.Value == materialName);
+                if (matNameImport == null)
                     throw new Exception($"Material \"{materialName}\" not found");
 
                 string newName = GetObjectName(newPath);
-                asset.AddNameReference(FString.FromString(newName));
-                GetProperty<NamePropertyData>(material, "MaterialSlotName").Value = FName.FromString(newName);
                 
                 // Update name import
-                Import matNameImport = GetProperty<ObjectPropertyData>(material, "MaterialInterface").Value.ToImport(asset);
                 RenameImport(matNameImport, asset, newName);
 
                 // Update path import
