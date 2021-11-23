@@ -14,7 +14,7 @@ namespace GtaModdingCli.Commands
         "  create [material-info-json] [out-path]\n" +
         "    Creates material with settings from json.\n" +
         "    material-info-json: Path to json material definition.\n" +
-        "    out-path: Path to output file.\n" +
+        "    out-path: Path to output directory.\n" +
 
         "  update [uasset] [material-name] [new-material-path]\n" +
         "    Creates material with settings from json.\n" +

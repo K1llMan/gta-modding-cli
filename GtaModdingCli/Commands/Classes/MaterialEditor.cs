@@ -43,7 +43,6 @@ namespace GtaModdingCli.Commands.Classes
 
         private void ChangeExportName(Export export, string path)
         {
-            path = Path.GetFileNameWithoutExtension(path).Replace("\\", "/");
             string exportName = export.ObjectName.Value.Value;
 
             FString[] values = export.Asset.GetNameMapIndexList()
@@ -95,6 +94,113 @@ namespace GtaModdingCli.Commands.Classes
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
             asset.Write(Path.Combine(directory, Path.GetFileName(asset.FilePath)));
+        }
+
+        private string ReplaceSubs(string str, string replace)
+        {
+            return str.Replace("{asset}", replace);
+        }
+
+        private void SaveNewMaterial(string name, JObject settings, string assetFileName, string outputPath)
+        {
+            // Textures
+            string materialPath = ReplaceSubs(settings["material"].ToString(), name);
+            JObject texList = (JObject)settings["textures"];
+
+            List<(string Type, string Path)> textures = texList.Properties()
+                .Select(p => (p.Name, p.Value.ToString()))
+                .Where(t => !string.IsNullOrEmpty(t.Item2))
+                .ToList();
+
+            // Scalar
+            JObject scalarList = (JObject)settings["scalar"];
+            List<(string Name, float Value)> scalars = scalarList.Properties()
+                .Select(p => (p.Name, p.Value.Value<float>()))
+                .ToList();
+
+            UAsset asset = new(assetFileName, UE4Version.VER_UE4_26);
+            Export material = asset.Exports.FirstOrDefault(e => e.ObjectName.Value.Value.StartsWith("MI_"));
+
+            if (material is NormalExport ne)
+            {
+                // Replace material name
+                ChangeExportName(material, materialPath);
+
+                List<StructPropertyData> scalarParameters = new();
+                List<StructPropertyData> textureParameters = new();
+                List<StructPropertyData> textureStreaming = new();
+
+                foreach ((string Name, float Value) scalar in scalars)
+                {
+                    scalarParameters.Add(new StructPropertyData(FName.FromString("ScalarParameterValues"))
+                    {
+                        StructType = FName.FromString("ScalarParameterValue"),
+                        Value = new List<PropertyData> {
+                            new ScalarParameterPropertyData(FName.FromString("ScalarParameterValues")) {
+                                Value = new FScalarParameter {
+                                    Guid = Guid.NewGuid(),
+                                    Info = new FMaterialParameterInfo {
+                                        Association = EMaterialParameterAssociation.GlobalParameter,
+                                        Index = -1,
+                                        Name = FName.FromString(scalar.Name)
+                                    },
+                                    Value = scalar.Value
+                                }
+                            }
+                        }
+                    });
+                }
+
+                foreach ((string Type, string Path) texture in textures)
+                {
+                    // Add new texture
+                    FPackageIndex textureIndex = AddTextureImport(asset, ReplaceSubs(texture.Path, name));
+
+                    textureParameters.Add(new StructPropertyData(FName.FromString("TextureParameterValues"))
+                    {
+                        StructType = FName.FromString("TextureParameterValue"),
+                        Value = new List<PropertyData> {
+                            new TextureParameterPropertyData(FName.FromString("TextureParameterValues")) {
+                                Value = new FTextureParameter {
+                                    Guid = Guid.NewGuid(),
+                                    Info = new FMaterialParameterInfo {
+                                        Association = EMaterialParameterAssociation.GlobalParameter,
+                                        Index = -1,
+                                        Name = FName.FromString(texture.Type)
+                                    },
+                                    Value = textureIndex
+                                }
+                            }
+                        }
+                    });
+
+                    textureStreaming.Add(new StructPropertyData(FName.FromString("TextureStreamingData"))
+                    {
+                        StructType = FName.FromString("MaterialTextureInfo"),
+                        Value = new List<PropertyData> {
+                            new MaterialTextureInfoPropertyData(FName.FromString("TextureStreamingData")) {
+                                Value = new FMaterialTextureInfo {
+                                    UVChannelIndex = 0,
+                                    SamplingScale = 1,
+                                    TextureName = FName.FromString(GetObjectName(ReplaceSubs(texture.Path, name)))
+                                }
+                            }
+                        }
+                    });
+                }
+
+                GetProperty<ArrayPropertyData>(ne, "ScalarParameterValues")
+                    .Value = scalarParameters.ToArray();
+                GetProperty<ArrayPropertyData>(ne, "TextureParameterValues")
+                    .Value = textureParameters.ToArray();
+                GetProperty<ArrayPropertyData>(ne, "TextureStreamingData")
+                    .Value = textureStreaming.ToArray();
+            }
+
+            if (!Directory.Exists(outputPath))
+                Directory.CreateDirectory(outputPath);
+
+            asset.Write(Path.Combine(outputPath, $"MI_{name}.uasset"));
         }
 
         #endregion Aux functions
@@ -161,74 +267,18 @@ namespace GtaModdingCli.Commands.Classes
         /// <param name="outputPath">Output path</param>
         public void CreateMaterial(string fileName, string outputPath)
         {
-            JObject settings = JObject.Parse(File.ReadAllText(fileName));
-            
-            string materialPath = settings["material"].ToString();
-            JObject texList = (JObject) settings["textures"];
-
-            List<(string Type, string Path)> textures = texList.Properties()
-                .Select(p => (p.Name, p.Value.ToString()))
-                .Where(t => !string.IsNullOrEmpty(t.Item2))
-                .ToList();
-
-            string assetFileName = Path.Combine(AppContext.BaseDirectory, "sources", "MI_empty.uasset");
-            if (!File.Exists(assetFileName))
+            string baseAssetFileName = Path.Combine(AppContext.BaseDirectory, "sources", "MI_empty.uasset");
+            if (!File.Exists(baseAssetFileName))
                 throw new Exception("\"MI_empty.uasset\" does not exist in \"sources\" directory");
 
-            UAsset asset = new(assetFileName, UE4Version.VER_UE4_26);
-            Export material = asset.Exports.FirstOrDefault(e => e.ObjectName.Value.Value.StartsWith("MI_"));
+            JObject settings = JObject.Parse(File.ReadAllText(fileName));
 
-            if (material is NormalExport ne)
-            {
-                // Replace material name
-                ChangeExportName(material, materialPath);
+            string[] names = settings["names"]
+                .Select(n => n.ToString())
+                .ToArray();
 
-                List<StructPropertyData> textureParameters = new();
-                List<StructPropertyData> textureStreaming = new();
-
-                foreach ((string Type, string Path) texture in textures)
-                {
-                    // Add new texture
-                    FPackageIndex textureIndex = AddTextureImport(asset, texture.Path);
-
-                    textureParameters.Add(new StructPropertyData(FName.FromString("TextureParameterValues")){
-                        StructType = FName.FromString("TextureParameterValue"),
-                        Value = new List<PropertyData> {
-                            new TextureParameterPropertyData(FName.FromString("TextureParameterValues")) {
-                                Value = new FTextureParameter {
-                                    Guid = Guid.NewGuid(),
-                                    Info = new FMaterialParameterInfo {
-                                        Association = EMaterialParameterAssociation.GlobalParameter,
-                                        Index = -1,
-                                        Name = FName.FromString("BaseColor")
-                                    },
-                                    Value = textureIndex
-                                }
-                            }
-                        }
-                    });
-                    
-                    textureStreaming.Add(new StructPropertyData(FName.FromString("TextureStreamingData")) {
-                        StructType = FName.FromString("MaterialTextureInfo"),
-                        Value = new List<PropertyData> {
-                            new MaterialTextureInfoPropertyData(FName.FromString("TextureStreamingData")) {
-                                Value = new FMaterialTextureInfo {
-                                    UVChannelIndex = 0,
-                                    SamplingScale = 1,
-                                    TextureName = FName.FromString(GetObjectName(texture.Path))
-                                }   
-                            }
-                        }
-                    });
-                }
-
-                GetProperty<ArrayPropertyData>(ne, "TextureParameterValues")
-                    .Value = textureParameters.ToArray();
-                GetProperty<ArrayPropertyData>(ne, "TextureStreamingData")
-                    .Value = textureStreaming.ToArray();
-            }
-
-            asset.Write(outputPath);
+            foreach (string name in names)
+                SaveNewMaterial(name, settings, baseAssetFileName, outputPath);
         }
 
         /// <summary>

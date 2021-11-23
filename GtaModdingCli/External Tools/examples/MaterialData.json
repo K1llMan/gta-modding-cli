@@ -1,10 +1,18 @@
+// {asset} - replacement place for name
 {
-    "material": "/Game/Weapons/m60/MI_m60", 
+    "names": [ "ak47" ],
+    "material": "/Game/Weapons/{asset}/MI_{asset}",
+    "scalar": {
+        "Metallic": 0.7,
+        "Roughness": 0.9,
+        "Specular": 0.2,
+        "RefractionDepthBias": 0.0
+    },
     "textures": {
-        "BaseColor": "/Game/Weapons/m60/T_m60_BC",
-        "Metallic": "/Game/Weapons/m60/T_m60_M",
-        "Normal": "/Game/Weapons/m60/T_m60_N",
-        "Roughness": "/Game/Weapons/m60/T_m60_R",
+        "BaseColor": "/Game/Weapons/{asset}/T_{asset}_BC",
+        "Metallic": "/Game/Weapons/{asset}/T_{asset}_M",
+        "Normal": "/Game/Weapons/{asset}/T_{asset}_N",
+        "Roughness": "/Game/Weapons/{asset}/T_{asset}_R",
         "AmbientOcclusion": ""
     }
 }
