@@ -132,6 +132,9 @@ namespace GtaModdingCli.Commands.Classes
 
                 foreach ((string Name, float Value) scalar in scalars)
                 {
+                    // Add name
+                    asset.AddNameReference(FString.FromString(scalar.Name));
+
                     scalarParameters.Add(new StructPropertyData(FName.FromString("ScalarParameterValues"))
                     {
                         StructType = FName.FromString("ScalarParameterValue"),
@@ -153,6 +156,9 @@ namespace GtaModdingCli.Commands.Classes
 
                 foreach ((string Type, string Path) texture in textures)
                 {
+                    // Add name
+                    asset.AddNameReference(FString.FromString(texture.Type));
+
                     // Add new texture
                     FPackageIndex textureIndex = AddTextureImport(asset, ReplaceSubs(texture.Path, name));
 
