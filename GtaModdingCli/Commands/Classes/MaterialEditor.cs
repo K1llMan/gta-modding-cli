@@ -8,8 +8,12 @@ using GtaModdingCli.Extensions;
 using Newtonsoft.Json.Linq;
 
 using UAssetAPI;
+using UAssetAPI.ExportTypes;
 using UAssetAPI.PropertyTypes;
-using UAssetAPI.StructTypes;
+using UAssetAPI.PropertyTypes.Simple;
+using UAssetAPI.PropertyTypes.Struct;
+using UAssetAPI.UnrealTypes;
+using UAssetAPI.UnrealTypes.Enums;
 
 namespace GtaModdingCli.Commands.Classes
 {
