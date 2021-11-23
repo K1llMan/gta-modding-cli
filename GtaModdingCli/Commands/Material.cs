@@ -3,7 +3,7 @@ using GtaModdingCli.Common;
 
 namespace GtaModdingCli.Commands
 {
-    [CliCommand("Replace texture exports in material file.",
+    [CliCommand("Material editing commands.",
         "Usage: material [command] [command-args]+\n" +
         "command: See command list below." +
         "  empty [uasset] [out-path]\n" +
@@ -23,11 +23,12 @@ namespace GtaModdingCli.Commands
         "    new-material-path: New material path inside pak.\n" +
 
         "  replace [uasset] [search-pattern] [replace-pattern]\n" +
+        "    Replace existing texture name to new by pattern.\n" +
         "    uasset: Path to material asset.\n" +
         "    search-pattern: Regular expression to search string in path.\n" +
         "      Example: (.*)(T_)(.+?)(_all)?(_.+) - search matches in string and set it in group by number.\n" +
         "    replace-pattern: Replacement pattern. Can include special replacement {pack} - uasset name.\n" +
-        "      Example: /Game/Weapons/{pack}/T_{pack}$5 - place all textures into /Game/Weapons/<uasset name>/T_<uasset name><texture type>, $5 - group with type from [search-pattern]",
+        "      Example: /Game/Weapons/{pack}/T_{pack}$5 - place all textures into /Game/Weapons/[uasset name]/T_[uasset name][texture type], $5 - group with type from [search-pattern]",
         "material"
     )]
     public class Material : AbstractCliCommand
@@ -62,8 +63,6 @@ namespace GtaModdingCli.Commands
                     break;
                 }
             }
-
-
         }
 
         public Material(Cli cli) : base(cli)

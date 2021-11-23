@@ -31,14 +31,16 @@ namespace GtaModdingCli.Common
 
         internal void ExecutePak(params string[] args)
         {
+            args[0] = args[0].TrimEnd('\\') + "\\";
+
             Process process = new()
             {
                 EnableRaisingEvents = true,
-                StartInfo = new ProcessStartInfo()
+                StartInfo = new ProcessStartInfo
                 {
                     FileName = Path.Combine(AppContext.BaseDirectory, "unrealPak", "UnrealPak-With-Compression.bat"),
                     Arguments = string.Join(" ", args),
-                    WorkingDirectory = Path.Combine(AppContext.BaseDirectory, "temp"),
+                    //WorkingDirectory = Path.Combine(AppContext.BaseDirectory, "temp"),
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
                     CreateNoWindow = true

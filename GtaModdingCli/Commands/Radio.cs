@@ -1,6 +1,6 @@
 ﻿using System;
-using System.ComponentModel;
 using System.IO;
+
 using GtaModdingCli.Commands.Classes;
 using GtaModdingCli.Common;
 
@@ -8,13 +8,12 @@ namespace GtaModdingCli.Commands
 {
     [CliCommand("Radio builder command.",
         "Usage: radio [asset] [tracks] [pak-path] [mod-name]\n" +
-        "asset: uasset file name\n" +
-        "tracks: path to tracks assets directory" +
-        "pak-path: path inside pak" +
-        "mod-name: mod file name",
+        "asset: Uasset file name.\n" +
+        "tracks: Path to tracks assets directory.\n" +
+        "pak-path: Path inside pak.\n" +
+        "mod-name: Mod file name.",
         "radio"
     )]
-    [Description()]
     public class Radio : AbstractCliCommand
     {
         private void ClearTemp()
@@ -32,7 +31,7 @@ namespace GtaModdingCli.Commands
             }
 
             ClearTemp();
-
+            
             RadioBuilder builder = new();
             builder.Load(args[0]);
 
@@ -47,9 +46,9 @@ namespace GtaModdingCli.Commands
 
             builder.Save($"{tempDir}\\{Path.GetFileName(args[0])}");
 
-            cli.ExecutePak(Path.Combine(AppContext.BaseDirectory, "temp"));
+            cli.ExecutePak(Path.Combine(AppContext.BaseDirectory, "temp"), args[3]);
 
-            File.Move(Path.Combine(AppContext.BaseDirectory, "temp.pak"), args[3]);
+            File.Move(Path.Combine(AppContext.BaseDirectory, "temp", $"{args[3]}.pak"), Path.Combine(AppContext.BaseDirectory, $"{args[3]}.pak"));
             ClearTemp();
 
             Console.WriteLine($"Created radio mod: {args[3]}");

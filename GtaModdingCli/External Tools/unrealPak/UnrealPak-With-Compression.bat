@@ -3,7 +3,7 @@
 @setlocal enableextensions
 @pushd %~dp0
 @echo "%~1\*.*" "..\..\..\*.*" >filelist.txt
-.\UnrealPak.exe "%~1.pak" -create=filelist.txt -compress
+.\UnrealPak.exe "%~1%~2.pak" -create=filelist.txt -compress
 @popd
 
 :skip

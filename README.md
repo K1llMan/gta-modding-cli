@@ -4,7 +4,7 @@ CLI (Command Line Interface) for GTA modding utility functions.
 
 ## Usage
 
-.\GtaModdingCli.exe [command] [argument]
+.\GtaModdingCli.exe [command] [arguments]+
 
 Argument list can be obtained by using "help" command:
 
@@ -12,13 +12,16 @@ Argument list can be obtained by using "help" command:
 
 ## Commands
 
-**h|help** - CLI help
+**h|help** - CLI help.
 
-**radio** - Radio Builder function
+**radio** - Radio Builder.
 
-**material** - texture path replacing command in material
+**material** - Material editing commands.
 
-All commands has example bat.
+**pak** - UnreakPak utility usage.
+
+## Examples
+Command executing examples can be found in "examples" directory.
 
 ## Building
 
