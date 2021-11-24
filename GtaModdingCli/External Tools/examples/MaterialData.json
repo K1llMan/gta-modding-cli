@@ -1,9 +1,9 @@
 // {asset} - replacement place for name
 {
-    "names": [ "ak47" ],
+    "names": [ "spas12" ],
     "material": "/Game/Weapons/{asset}/MI_{asset}",
     "scalar": {
-        "Metallic": 0.7,
+        "Metallic": 0.6,
         "Roughness": 0.9,
         "Specular": 0.2,
         "RefractionDepthBias": 0.0
@@ -13,6 +13,8 @@
         "Metallic": "/Game/Weapons/{asset}/T_{asset}_M",
         "Normal": "/Game/Weapons/{asset}/T_{asset}_N",
         "Roughness": "/Game/Weapons/{asset}/T_{asset}_R",
-        "AmbientOcclusion": ""
+        "AmbientOcclusion": "",
+        "Specular": "",
+        "PackedTexture": ""
     }
 }
