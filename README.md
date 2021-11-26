@@ -20,8 +20,13 @@ Argument list can be obtained by using "help" command:
 
 **pak** - UnreakPak utility usage.
 
+**i** - Interactive mode.
+
 ## Examples
 Command executing examples can be found in "examples" directory.
+
+## Interactive mode
+Interactive mode starts with command "i". Interactive mode helps executing commands in dialog.
 
 ## Building
 
