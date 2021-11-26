@@ -16,7 +16,7 @@ namespace GtaModdingCli.Common
         internal Type[] Commands { get; set; }
 
         public int CommandsCount => Commands.Length;
-        
+
         #endregion Properties
 
         #region Main functions
@@ -57,19 +57,42 @@ namespace GtaModdingCli.Common
         }
 
         /// <summary>
+        /// List of available commands
+        /// </summary>
+        /// <returns></returns>
+        public string[] GetCommands()
+        {
+            return Commands
+                .Select(t => t.GetCustomAttribute<CliCommandAttribute>().Commands.First())
+                .ToArray();
+        }
+
+        /// <summary>
+        /// Get <typeref name="ICliCommand"/> by name
+        /// </summary>
+        /// <param name="command">Command</param>
+        /// <returns></returns>
+        public ICliCommand GetCommand(string command)
+        {
+            Type commandType = Commands
+                .FirstOrDefault(t => t.GetCustomAttribute<CliCommandAttribute>().Commands.Contains(command));
+
+            if (commandType == null)
+            {
+                Console.WriteLine("Unknown command.");
+                return null;
+            }
+
+            return (ICliCommand)Activator.CreateInstance(commandType, this);
+        }
+
+        /// <summary>
         /// Command execution
         /// </summary>
         /// <param name="args">Arguments</param>
         public void Execute(params string[] args)
         {
-            string command = args[0];
-            Type commandType = Commands
-                .FirstOrDefault(t => t.GetCustomAttribute<CliCommandAttribute>().Commands.Contains(command));
-
-            if (commandType == null)
-                throw new Exception("Unknown command");
-
-            ICliCommand commandInstance = (ICliCommand)Activator.CreateInstance(commandType, this);
+            ICliCommand commandInstance = GetCommand(args[0]);
             commandInstance.Execute(args[1..]);
         }
 

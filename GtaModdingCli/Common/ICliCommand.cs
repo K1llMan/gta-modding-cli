@@ -1,4 +1,6 @@
-﻿namespace GtaModdingCli.Common
+﻿using GtaModdingCli.Commands.Classes;
+
+namespace GtaModdingCli.Common
 {
     /// <summary>
     /// CLI command interface
@@ -6,5 +8,7 @@
     public interface ICliCommand
     {
         void Execute(string[] args);
+
+        string[] GetInteractiveData();
     }
 }

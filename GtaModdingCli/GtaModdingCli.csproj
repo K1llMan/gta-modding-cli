@@ -14,6 +14,10 @@
     <CopyItems Include="External Tools\**\*.*" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Sharprompt" Version="2.3.7" />
+  </ItemGroup>
+
   <Target Name="ProgramsCopy" AfterTargets="AfterBuild">
     <Copy SourceFiles="@(CopyItems)" DestinationFolder="$(OutputPath)\%(RecursiveDir)" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" Retries="3" RetryDelayMilliseconds="300" />
   </Target>

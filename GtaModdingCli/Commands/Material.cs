@@ -1,5 +1,12 @@
-﻿using GtaModdingCli.Commands.Classes;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+
+using GtaModdingCli.Commands.Classes;
 using GtaModdingCli.Common;
+
+using Sharprompt;
 
 namespace GtaModdingCli.Commands
 {
@@ -33,6 +40,44 @@ namespace GtaModdingCli.Commands
     )]
     public class Material : AbstractCliCommand
     {
+        #region Aux function
+
+        private string[] GetEmptyArgs()
+        {
+            return new[] {
+                Prompt.Input<string>("Material UAsset", validators: new List<Func<object, ValidationResult>> { FileExists }),
+                Prompt.Input<string>("Output path")
+            };
+        }
+
+        private string[] GetCreateArgs()
+        {
+            return new[] {
+                Prompt.Input<string>("Material info json", validators: new List<Func<object, ValidationResult>> { FileExists }),
+                Prompt.Input<string>("Output path")
+            };
+        }
+
+        private string[] GetUpdateArgs()
+        {
+            return new[] {
+                Prompt.Input<string>("Material UAsset", validators: new List<Func<object, ValidationResult>> { FileExists }),
+                Prompt.Input<string>("Old material name"),
+                Prompt.Input<string>("Path to new material in pak")
+            };
+        }
+
+        private string[] GetReplaceArgs()
+        {
+            return new[] {
+                Prompt.Input<string>("Material UAsset", validators: new List<Func<object, ValidationResult>> { FileExists }),
+                Prompt.Input<string>("Search pattern"),
+                Prompt.Input<string>("Replace pattern")
+            };
+        }
+
+        #endregion Aux function
+
         public override void Execute(string[] args)
         {
             MaterialEditor editor = new();
@@ -63,6 +108,28 @@ namespace GtaModdingCli.Commands
                     break;
                 }
             }
+        }
+
+        public override string[] GetInteractiveData()
+        {
+            string[] args = { Prompt.Select("Select command", new[] { "empty", "create", "update", "replace" }) };
+
+            switch (args[0])
+            {
+                case "empty":
+                    return args.Concat(GetEmptyArgs()).ToArray();
+
+                case "create":
+                    return args.Concat(GetCreateArgs()).ToArray();
+
+                case "update":
+                    return args.Concat(GetUpdateArgs()).ToArray();
+
+                case "replace":
+                    return args.Concat(GetReplaceArgs()).ToArray();
+            }
+
+            return new string[] { };
         }
 
         public Material(Cli cli) : base(cli)

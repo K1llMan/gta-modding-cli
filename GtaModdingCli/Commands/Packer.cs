@@ -1,6 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.IO;
+using System.Linq;
 
 using GtaModdingCli.Common;
+
+using Sharprompt;
 
 namespace GtaModdingCli.Commands
 {
@@ -21,6 +27,16 @@ namespace GtaModdingCli.Commands
             }
 
             cli.ExecutePak(args[0], args[1]);
+        }
+
+        public override string[] GetInteractiveData()
+        {
+            return new[] { 
+                Prompt.Input<string>("Directory to pak", validators: new List<Func<object, ValidationResult>> { DirectoryExists }),
+                Prompt.Input<string>("Pak name without extension", validators: new List<Func<object, ValidationResult>> {
+                    Validators.Required("String must be non empty.")
+                })
+            };
         }
 
         public Packer(Cli cli) : base(cli)

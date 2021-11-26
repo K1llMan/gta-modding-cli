@@ -1,8 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 
 using GtaModdingCli.Commands.Classes;
 using GtaModdingCli.Common;
+
+using Sharprompt;
 
 namespace GtaModdingCli.Commands
 {
@@ -52,6 +56,16 @@ namespace GtaModdingCli.Commands
             ClearTemp();
 
             Console.WriteLine($"Created radio mod: {args[3]}");
+        }
+
+        public override string[] GetInteractiveData()
+        {
+            return new[] {
+                Prompt.Input<string>("UAsset file", validators: new List<Func<object, ValidationResult>> { FileExists }),
+                Prompt.Input<string>("Tracks directory", validators: new List<Func<object, ValidationResult>> { DirectoryExists }),
+                Prompt.Input<string>("Path inside pak"), 
+                Prompt.Input<string>("Mod name")
+            };
         }
 
         public Radio(Cli cli) : base(cli)

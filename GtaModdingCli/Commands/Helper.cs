@@ -2,7 +2,10 @@
 using System.Linq;
 using System.Reflection;
 
+using GtaModdingCli.Commands.Classes;
 using GtaModdingCli.Common;
+
+using Sharprompt;
 
 namespace GtaModdingCli.Commands
 {
@@ -45,6 +48,16 @@ namespace GtaModdingCli.Commands
             }
 
             Console.WriteLine(GetFormattedDesc(type.GetCustomAttribute<CliCommandAttribute>()));
+        }
+
+        public override string[] GetInteractiveData()
+        {
+            string fullVariant = "Full help topic.";
+            string command = Prompt.Select("Select command", cli.GetCommands().Concat(new [] { fullVariant }));
+            if (command == fullVariant)
+                return new string[] { };
+
+            return new []{ command };
         }
 
         public Helper(Cli cli) : base(cli)
