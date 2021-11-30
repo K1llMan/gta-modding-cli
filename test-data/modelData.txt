@@ -1,0 +1,15 @@
+
+offset: 487223
+DFFExtraData {
+    length: 554006
+    ModelData: [
+        size: 4988
+        structLength: 553953
+        {
+            Name: /Game/ViceCity/Environment/Downtown/SM_doontoon03
+
+            offset: 487309
+            type: GTAModelData
+        }
+    ]
+}

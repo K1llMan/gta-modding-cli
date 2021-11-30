@@ -7,15 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\UAssetAPI\UAssetAPI\UAssetAPI.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <CopyItems Include="External Tools\**\*.*" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Sharprompt" Version="2.3.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GtaProperties\GtaProperties.csproj" />
+    <ProjectReference Include="..\UAssetAPI\UAssetAPI\UAssetAPI.csproj" />
   </ItemGroup>
 
   <Target Name="ProgramsCopy" AfterTargets="AfterBuild">

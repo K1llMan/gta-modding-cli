@@ -5,6 +5,9 @@ using System.Linq;
 
 using GtaModdingCli.Extensions;
 
+using GtaProperties.PropertyTypes;
+using GtaProperties.UnrealTypes;
+
 using Newtonsoft.Json.Linq;
 
 using UAssetAPI;
