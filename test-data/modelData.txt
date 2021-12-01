@@ -6,10 +6,24 @@ DFFExtraData {
         size: 4988
         structLength: 553953
         {
-            Name: /Game/ViceCity/Environment/Downtown/SM_doontoon03
+            Name: player
 
             offset: 487309
             type: GTAModelData
+        }
+
+        29 FDFFFrameData {
+            8 FName {
+                4 int32 pointer
+                4 int32 number
+            }
+            4 int32 boneTag
+            16 FQuat rotation {
+                float X
+                float Y
+                float Z
+                float W
+            }
         }
     ]
 }
