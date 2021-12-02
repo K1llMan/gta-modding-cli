@@ -6,7 +6,6 @@ using UAssetAPI;
 using UAssetAPI.DataAccess;
 using UAssetAPI.PropertyTypes;
 using UAssetAPI.UnrealTypes;
-using UAssetAPI.UnrealTypes.Enums;
 
 namespace GtaProperties.PropertyTypes
 {
