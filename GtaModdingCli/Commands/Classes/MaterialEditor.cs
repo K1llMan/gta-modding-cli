@@ -64,6 +64,29 @@ namespace GtaModdingCli.Commands.Classes
             export.ObjectName = FName.FromString(GetObjectName(path));
         }
 
+        private void ChangeParentMaterial(NormalExport material, string parentStr)
+        {
+            if (string.IsNullOrEmpty(parentStr))
+                return;
+
+            UAsset asset = material.Asset;
+
+            ObjectPropertyData parent = (ObjectPropertyData) material.Data
+                .FirstOrDefault(p => p.Name.Value.Value == "Parent");
+
+            if (parent == null)
+                return;
+
+            Import import = parent.ToImport(asset)
+                .OuterIndex
+                .ToImport(asset);
+
+            FName objName = FName.FromString(parentStr);
+            asset.AddNameReference(objName.Value);
+
+            import.ObjectName = objName;
+        }
+
         private Import[] GetTextureImports(UAsset asset)
         {
             return asset.Imports
@@ -128,6 +151,9 @@ namespace GtaModdingCli.Commands.Classes
             {
                 // Replace material name
                 ChangeExportName(material, materialPath);
+
+                // Change base material
+                ChangeParentMaterial(ne, settings["parent"]?.ToString());
 
                 List<StructPropertyData> scalarParameters = new();
                 List<StructPropertyData> textureParameters = new();

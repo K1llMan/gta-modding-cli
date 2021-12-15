@@ -1,10 +1,21 @@
+// {asset} - replacement place for name
 {
-    "material": "/Game/Weapons/MI_ak47", 
+    "names": [ "spas12" ],
+    "material": "/Game/Weapons/{asset}/MI_{asset}",
+    "parent": "/Game/Common/Materials/MI_New_Base",
+    "scalar": {
+        "Metallic": 0.6,
+        "Roughness": 0.9,
+        "Specular": 0.2,
+        "RefractionDepthBias": 0.0
+    },
     "textures": {
-        "BaseColor": "/Game/Weapons/T_ak47_BC",
-        "Metallic": "/Game/Weapons/T_ak47_M",
-        "Normal": "/Game/Weapons/T_ak47_N",
-        "Roughness": "/Game/Weapons/T_ak47_R",
-        "AmbientOcclusion": ""
+        "BaseColor": "/Game/Weapons/{asset}/T_{asset}_BC",
+        "Metallic": "/Game/Weapons/{asset}/T_{asset}_M",
+        "Normal": "/Game/Weapons/{asset}/T_{asset}_N",
+        "Roughness": "/Game/Weapons/{asset}/T_{asset}_R",
+        "AmbientOcclusion": "",
+        "Specular": "",
+        "PackedTexture": ""
     }
 }

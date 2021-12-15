@@ -39,50 +39,6 @@ namespace GtaProperties.PropertyTypes
             FGTAModelData data = new FGTAModelData();
             data.Read(reader);
 
-            /*
-            FGTAModelData data = new FGTAModelData {
-                ModelName = reader.ReadFString(),
-                Index = reader.ReadInt32(),
-            };
-
-            FSoftObjectProperty asset = new FSoftObjectProperty();
-            asset.Read(reader);
-
-            data.Asset = asset;
-
-            FSoftClassProperty blueprint = new FSoftClassProperty();
-            blueprint.Read(reader);
-
-            data.Blueprint = blueprint;
-
-            short sh = reader.ReadInt16();
-
-            int size = reader.ReadInt32();
-            data.FXDatas = new FDFF2DEffect[size];
-            for (int i = 0; i < data.FXDatas.Length; i++)
-            {
-                FDFF2DEffect effect = new FDFF2DEffect {
-                    nodeName = reader.ReadFString()
-                };
-            }
-
-            size = reader.ReadInt32();
-            data.CollisionData = reader.ReadChars(size);
-
-            size = reader.ReadInt32();
-            data.Frames = new FDFFFrameData[size];
-            for (int i = 0; i < data.Frames.Length; i++)
-            {
-
-            }
-            
-            data.ExtraStreamDistance = reader.ReadSingle();
-            data.bClassReferenceIsUnique = reader.ReadBoolean();
-            data.bHasFrameRotations = reader.ReadBoolean();
-            data.bCanCollapseMesh = reader.ReadBoolean();
-            reader.ReadByte();
-            */
-
             Value = data;
         }
 
