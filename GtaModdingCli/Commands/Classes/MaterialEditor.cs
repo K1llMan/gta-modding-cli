@@ -44,6 +44,19 @@ namespace GtaModdingCli.Commands.Classes
             return null;
         }
 
+        private void ChangeNameReference(UAsset asset, string oldName, string newName)
+        {
+            FString[] values = asset.GetNameMapIndexList()
+                .Where(n => n.Value == oldName)
+                .ToArray();
+
+            foreach (FString value in values)
+            {
+                int reference = asset.SearchNameReference(value);
+                asset.SetNameReference(reference, FString.FromString(newName));
+            }
+        }
+
         private void ChangeExportName(Export export, string path)
         {
             string exportName = export.ObjectName.Value.Value;
@@ -54,11 +67,11 @@ namespace GtaModdingCli.Commands.Classes
 
             foreach (FString value in values)
             {
-                int reference = export.Asset.SearchNameReference(value);
                 string replace = value.Value == exportName
                     ? GetObjectName(path)
                     : path;
-                export.Asset.SetNameReference(reference, FString.FromString(replace));
+
+                ChangeNameReference(export.Asset, value.Value, replace);
             }
 
             export.ObjectName = FName.FromString(GetObjectName(path));
@@ -81,10 +94,7 @@ namespace GtaModdingCli.Commands.Classes
                 .OuterIndex
                 .ToImport(asset);
 
-            FName objName = FName.FromString(parentStr);
-            asset.AddNameReference(objName.Value);
-
-            import.ObjectName = objName;
+            ChangeNameReference(material.Asset, import.ObjectName.Value.Value, parentStr);
         }
 
         private Import[] GetTextureImports(UAsset asset)
