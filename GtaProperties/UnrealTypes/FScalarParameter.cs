@@ -10,13 +10,13 @@ namespace GtaProperties.UnrealTypes
     public class FScalarParameter
     {
         [JsonProperty]
-        public FMaterialParameterInfo Info { get; set; }
+        public FMaterialParameterInfo ParameterInfo { get; set; }
 
         [JsonProperty]
-        public float Value { get; set; }
+        public float ParameterValue { get; set; }
 
         [JsonProperty]
-        public Guid Guid { get; set; }
+        public Guid ExpressionGUID { get; set; }
 
         public FScalarParameter()
         {

@@ -38,13 +38,13 @@ namespace GtaProperties.PropertyTypes
 
             FScalarParameter data = new()
             {
-                Info = new FMaterialParameterInfo {
+                ParameterInfo = new FMaterialParameterInfo {
                     Name = reader.ReadFName(),
                     Association = (EMaterialParameterAssociation)reader.ReadByte(),
                     Index = reader.ReadInt32(),
                 },
-                Value = reader.ReadSingle(),
-                Guid = new Guid(reader.ReadBytes(16))
+                ParameterValue = reader.ReadSingle(),
+                ExpressionGUID = new Guid(reader.ReadBytes(16))
             };
 
             Value = data;
@@ -59,11 +59,11 @@ namespace GtaProperties.PropertyTypes
 
             int here = (int)writer.BaseStream.Position;
 
-            writer.Write(Value.Info.Name);
-            writer.Write((byte)Value.Info.Association);
-            writer.Write(Value.Info.Index);
-            writer.Write(Value.Value);
-            writer.Write(Value.Guid.ToByteArray());
+            writer.Write(Value.ParameterInfo.Name);
+            writer.Write((byte)Value.ParameterInfo.Association);
+            writer.Write(Value.ParameterInfo.Index);
+            writer.Write(Value.ParameterValue);
+            writer.Write(Value.ExpressionGUID.ToByteArray());
 
             return (int)writer.BaseStream.Position - here;
         }

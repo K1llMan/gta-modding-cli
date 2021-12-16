@@ -38,13 +38,13 @@ namespace GtaProperties.PropertyTypes
 
             FTextureParameter data = new()
             {
-                Info = new FMaterialParameterInfo {
+                ParameterInfo = new FMaterialParameterInfo {
                     Name = reader.ReadFName(),
                     Association = (EMaterialParameterAssociation)reader.ReadByte(),
                     Index = reader.ReadInt32(),
                 },
-                Value = new FPackageIndex(reader.ReadInt32()),
-                Guid = new Guid(reader.ReadBytes(16))
+                ParameterValue = new FPackageIndex(reader.ReadInt32()),
+                ExpressionGUID = new Guid(reader.ReadBytes(16))
             };
 
             Value = data;
@@ -57,11 +57,11 @@ namespace GtaProperties.PropertyTypes
                 writer.Write((byte)0);
             }
 
-            writer.Write(Value.Info.Name);
-            writer.Write((byte)Value.Info.Association);
-            writer.Write(Value.Info.Index);
-            writer.Write(Value.Value.Index);
-            writer.Write(Value.Guid.ToByteArray());
+            writer.Write(Value.ParameterInfo.Name);
+            writer.Write((byte)Value.ParameterInfo.Association);
+            writer.Write(Value.ParameterInfo.Index);
+            writer.Write(Value.ParameterValue.Index);
+            writer.Write(Value.ExpressionGUID.ToByteArray());
 
             return sizeof(short);
         }

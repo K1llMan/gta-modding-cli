@@ -10,13 +10,13 @@ namespace GtaProperties.UnrealTypes
     public class FVectorParameter
     {
         [JsonProperty]
-        public FMaterialParameterInfo Info { get; set; }
+        public FMaterialParameterInfo ParameterInfo { get; set; }
 
         [JsonProperty]
-        public FLinearColor Value { get; set; }
+        public FLinearColor ParameterValue { get; set; }
 
         [JsonProperty]
-        public Guid Guid { get; set; }
+        public Guid ExpressionGUID { get; set; }
 
         public FVectorParameter()
         {

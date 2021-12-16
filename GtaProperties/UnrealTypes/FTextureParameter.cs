@@ -12,13 +12,13 @@ namespace GtaProperties.UnrealTypes
     public class FTextureParameter
     {
         [JsonProperty]
-        public FMaterialParameterInfo Info { get; set; }
+        public FMaterialParameterInfo ParameterInfo { get; set; }
 
         [JsonProperty]
-        public FPackageIndex Value { get; set; }
+        public FPackageIndex ParameterValue { get; set; }
 
         [JsonProperty]
-        public Guid Guid { get; set; }
+        public Guid ExpressionGUID { get; set; }
 
         public FTextureParameter()
         {

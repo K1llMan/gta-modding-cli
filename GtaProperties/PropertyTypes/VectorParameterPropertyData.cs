@@ -36,20 +36,27 @@ namespace GtaProperties.PropertyTypes
                 reader.ReadByte();
             }
 
+            FName name = reader.ReadFName();
+            if (name.Value.Value == "None")
+            {
+                Value = null;
+                return;
+            }
+
             FVectorParameter data = new()
             {
-                Info = new FMaterialParameterInfo {
-                    Name = reader.ReadFName(),
+                ParameterInfo = new FMaterialParameterInfo {
+                    Name = name,
                     Association = (EMaterialParameterAssociation)reader.ReadByte(),
                     Index = reader.ReadInt32(),
                 },
-                Value = new FLinearColor { 
+                ParameterValue = new FLinearColor { 
                     R = reader.ReadSingle(),
                     G = reader.ReadSingle(),
                     B = reader.ReadSingle(),
                     A = reader.ReadSingle(),
                 },
-                Guid = new Guid(reader.ReadBytes(16))
+                ExpressionGUID = new Guid(reader.ReadBytes(16))
             };
 
             Value = data;
@@ -64,14 +71,21 @@ namespace GtaProperties.PropertyTypes
 
             int here = (int)writer.BaseStream.Position;
 
-            writer.Write(Value.Info.Name);
-            writer.Write((byte)Value.Info.Association);
-            writer.Write(Value.Info.Index);
-            writer.Write(Value.Value.R);
-            writer.Write(Value.Value.G);
-            writer.Write(Value.Value.B);
-            writer.Write(Value.Value.A);
-            writer.Write(Value.Guid.ToByteArray());
+            if (Value == null)
+            {
+                writer.Write(FName.FromString("None"));
+            }
+            else
+            {
+                writer.Write(Value.ParameterInfo.Name);
+                writer.Write((byte)Value.ParameterInfo.Association);
+                writer.Write(Value.ParameterInfo.Index);
+                writer.Write(Value.ParameterValue.R);
+                writer.Write(Value.ParameterValue.G);
+                writer.Write(Value.ParameterValue.B);
+                writer.Write(Value.ParameterValue.A);
+                writer.Write(Value.ExpressionGUID.ToByteArray());
+            }
 
             return (int)writer.BaseStream.Position - here;
         }

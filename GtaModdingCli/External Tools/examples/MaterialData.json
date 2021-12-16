@@ -9,6 +9,14 @@
         "Specular": 0.2,
         "RefractionDepthBias": 0.0
     },
+    "vector": {
+        "ColorMult": {
+            "R": 0.8,
+            "G": 0.8,
+            "B": 0.8,
+            "A": 1.0
+        }
+    },
     "textures": {
         "BaseColor": "/Game/Weapons/{asset}/T_{asset}_BC",
         "Metallic": "/Game/Weapons/{asset}/T_{asset}_M",

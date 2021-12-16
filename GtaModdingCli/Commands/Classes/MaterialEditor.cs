@@ -144,6 +144,17 @@ namespace GtaModdingCli.Commands.Classes
                 .Select(p => (p.Name, p.Value.Value<float>()))
                 .ToList();
 
+            // Vectors
+            JObject vectorList = (JObject)settings["vector"];
+            List<(string Name, FLinearColor Value)> vectors = vectorList.Properties()
+                .Select(p => (p.Name, new FLinearColor {
+                    R = p.Value["R"].Value<float>(),
+                    G = p.Value["G"].Value<float>(),
+                    B = p.Value["B"].Value<float>(),
+                    A = p.Value["A"].Value<float>(),
+                }))
+                .ToList();
+
             UAsset asset = new(assetFileName, UE4Version.VER_UE4_26);
             Export material = asset.Exports.FirstOrDefault(e => e.ObjectName.Value.Value.StartsWith("MI_"));
 
@@ -156,6 +167,7 @@ namespace GtaModdingCli.Commands.Classes
                 ChangeParentMaterial(ne, settings["parent"]?.ToString());
 
                 List<StructPropertyData> scalarParameters = new();
+                List<StructPropertyData> vectorParameters = new();
                 List<StructPropertyData> textureParameters = new();
                 List<StructPropertyData> textureStreaming = new();
 
@@ -164,19 +176,41 @@ namespace GtaModdingCli.Commands.Classes
                     // Add name
                     asset.AddNameReference(FString.FromString(scalar.Name));
 
-                    scalarParameters.Add(new StructPropertyData(FName.FromString("ScalarParameterValues"))
-                    {
+                    scalarParameters.Add(new StructPropertyData(FName.FromString("ScalarParameterValues")) {
                         StructType = FName.FromString("ScalarParameterValue"),
                         Value = new List<PropertyData> {
                             new ScalarParameterPropertyData(FName.FromString("ScalarParameterValues")) {
                                 Value = new FScalarParameter {
-                                    Guid = Guid.NewGuid(),
-                                    Info = new FMaterialParameterInfo {
+                                    ExpressionGUID = Guid.NewGuid(),
+                                    ParameterInfo = new FMaterialParameterInfo {
                                         Association = EMaterialParameterAssociation.GlobalParameter,
                                         Index = -1,
                                         Name = FName.FromString(scalar.Name)
                                     },
-                                    Value = scalar.Value
+                                    ParameterValue = scalar.Value
+                                }
+                            }
+                        }
+                    });
+                }
+
+                foreach ((string Name, FLinearColor Value) vector in vectors)
+                {
+                    // Add name
+                    asset.AddNameReference(FString.FromString(vector.Name));
+
+                    vectorParameters.Add(new StructPropertyData(FName.FromString("VectorParameterValues")) {
+                        StructType = FName.FromString("VectorParameterValue"),
+                        Value = new List<PropertyData> {
+                            new VectorParameterPropertyData(FName.FromString("VectorParameterValues")) {
+                                Value = new FVectorParameter() {
+                                    ExpressionGUID = Guid.NewGuid(),
+                                    ParameterInfo = new FMaterialParameterInfo {
+                                        Association = EMaterialParameterAssociation.GlobalParameter,
+                                        Index = -1,
+                                        Name = FName.FromString(vector.Name)
+                                    },
+                                    ParameterValue = vector.Value
                                 }
                             }
                         }
@@ -191,19 +225,18 @@ namespace GtaModdingCli.Commands.Classes
                     // Add new texture
                     FPackageIndex textureIndex = AddTextureImport(asset, ReplaceSubs(texture.Path, name));
 
-                    textureParameters.Add(new StructPropertyData(FName.FromString("TextureParameterValues"))
-                    {
+                    textureParameters.Add(new StructPropertyData(FName.FromString("TextureParameterValues")) {
                         StructType = FName.FromString("TextureParameterValue"),
                         Value = new List<PropertyData> {
                             new TextureParameterPropertyData(FName.FromString("TextureParameterValues")) {
                                 Value = new FTextureParameter {
-                                    Guid = Guid.NewGuid(),
-                                    Info = new FMaterialParameterInfo {
+                                    ExpressionGUID = Guid.NewGuid(),
+                                    ParameterInfo = new FMaterialParameterInfo {
                                         Association = EMaterialParameterAssociation.GlobalParameter,
                                         Index = -1,
                                         Name = FName.FromString(texture.Type)
                                     },
-                                    Value = textureIndex
+                                    ParameterValue = textureIndex
                                 }
                             }
                         }
@@ -226,6 +259,8 @@ namespace GtaModdingCli.Commands.Classes
 
                 GetProperty<ArrayPropertyData>(ne, "ScalarParameterValues")
                     .Value = scalarParameters.ToArray();
+                GetProperty<ArrayPropertyData>(ne, "VectorParameterValues")
+                    .Value = vectorParameters.ToArray();
                 GetProperty<ArrayPropertyData>(ne, "TextureParameterValues")
                     .Value = textureParameters.ToArray();
                 GetProperty<ArrayPropertyData>(ne, "TextureStreamingData")
