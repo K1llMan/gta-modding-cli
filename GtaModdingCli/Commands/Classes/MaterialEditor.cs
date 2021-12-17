@@ -90,11 +90,14 @@ namespace GtaModdingCli.Commands.Classes
             if (parent == null)
                 return;
 
-            Import import = parent.ToImport(asset)
-                .OuterIndex
-                .ToImport(asset);
+            Import importName = parent.ToImport(asset);
+            Import importPath = importName.OuterIndex.ToImport(asset);
 
-            ChangeNameReference(material.Asset, import.ObjectName.Value.Value, parentStr);
+            ChangeNameReference(material.Asset, importName.ObjectName.Value.Value, parentStr.Split('/').Last());
+            ChangeNameReference(material.Asset, importPath.ObjectName.Value.Value, parentStr);
+
+            importName.ObjectName = FName.FromString(parentStr.Split('/').Last());
+            importPath.ObjectName = FName.FromString(parentStr);
         }
 
         private Import[] GetTextureImports(UAsset asset)
@@ -213,7 +216,7 @@ namespace GtaModdingCli.Commands.Classes
                         StructType = FName.FromString("VectorParameterValue"),
                         Value = new List<PropertyData> {
                             new VectorParameterPropertyData(FName.FromString("VectorParameterValues")) {
-                                Value = new FVectorParameter() {
+                                Value = new FVectorParameter {
                                     ExpressionGUID = Guid.NewGuid(),
                                     ParameterInfo = new FMaterialParameterInfo {
                                         Association = EMaterialParameterAssociation.GlobalParameter,

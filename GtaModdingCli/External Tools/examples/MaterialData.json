@@ -2,7 +2,7 @@
 {
     "names": [ "spas12" ],
     "material": "/Game/Weapons/{asset}/MI_{asset}",
-    "parent": "/Game/Common/Materials/MI_New_Base",
+    "parent": "/Game/Common/Materials/MI_Emissive_P_Base",
     "scalar": {
         "Metallic": 0.6,
         "Roughness": 0.9,
@@ -10,10 +10,10 @@
         "RefractionDepthBias": 0.0
     },
     "vector": {
-        "ColorMult": {
-            "R": 0.8,
-            "G": 0.8,
-            "B": 0.8,
+        "EmissiveMult": {
+            "R": 0.50,
+            "G": 0.50,
+            "B": 1.0,
             "A": 1.0
         }
     },
