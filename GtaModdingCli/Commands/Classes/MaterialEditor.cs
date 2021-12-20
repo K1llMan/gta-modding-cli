@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
+using GtaModdingCli.Common;
 using GtaModdingCli.Extensions;
 
 using GtaProperties.PropertyTypes;
@@ -90,14 +91,7 @@ namespace GtaModdingCli.Commands.Classes
             if (parent == null)
                 return;
 
-            Import importName = parent.ToImport(asset);
-            Import importPath = importName.OuterIndex.ToImport(asset);
-
-            ChangeNameReference(material.Asset, importName.ObjectName.Value.Value, parentStr.Split('/').Last());
-            ChangeNameReference(material.Asset, importPath.ObjectName.Value.Value, parentStr);
-
-            importName.ObjectName = FName.FromString(parentStr.Split('/').Last());
-            importPath.ObjectName = FName.FromString(parentStr);
+            AssetUtils.ReplaceImport(asset, parent.ToImport(asset), parentStr);
         }
 
         private Import[] GetTextureImports(UAsset asset)
