@@ -3,6 +3,12 @@
     "names": [ "spas12" ],
     "material": "/Game/Weapons/{asset}/MI_{asset}",
     "parent": "/Game/Common/Materials/MI_Emissive_P_Base",
+    "overrides": {
+        "TwoSided": true,
+        "BlendMode": "BLEND_Masked",
+        "ShadingModel": "MSM_FromMaterialExpression",
+        "OpacityMaskClipValue": 0.5
+    },
     "scalar": {
         "Metallic": 0.6,
         "Roughness": 0.9,

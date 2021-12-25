@@ -8,6 +8,7 @@ using GtaModdingCli.Extensions;
 
 using GtaProperties.PropertyTypes;
 using GtaProperties.UnrealTypes;
+using GtaProperties.UnrealTypes.Enums;
 
 using Newtonsoft.Json.Linq;
 
@@ -134,25 +135,112 @@ namespace GtaModdingCli.Commands.Classes
             return str.Replace("{asset}", replace);
         }
 
-        private void SaveNewMaterial(string name, JObject settings, string assetFileName, string outputPath)
+        #region Properties setting
+
+        private void SetOverrides(NormalExport material, JObject overrideList)
         {
-            // Textures
-            string materialPath = ReplaceSubs(settings["material"].ToString(), name);
-            JObject texList = (JObject)settings["textures"];
+            UAsset asset = material.Asset;
 
-            List<(string Type, string Path)> textures = texList.Properties()
-                .Select(p => (p.Name, p.Value.ToString()))
-                .Where(t => !string.IsNullOrEmpty(t.Item2))
-                .ToList();
+            // Adding type strings
+            string[] propertyTypes = { "FloatProperty", "BoolProperty", "ByteProperty" };
+            foreach (string type in propertyTypes)
+                asset.AddNameReference(FString.FromString(type));
 
-            // Scalar
-            JObject scalarList = (JObject)settings["scalar"];
+            List<PropertyData> overrideParameters = new();
+            foreach (JProperty property in overrideList.Properties())
+            {
+                switch (property.Name)
+                {
+                    case "OpacityMaskClipValue":
+                    {
+
+
+                        overrideParameters.Add(new FloatPropertyData {
+                            Name = FName.FromString(property.Name, asset), 
+                            Value = property.Value.Value<float>()
+                        });
+                        break;
+                    }
+
+                    case "TwoSided":
+                    {
+                        overrideParameters.Add(new BoolPropertyData {
+                            Name = FName.FromString(property.Name, asset), 
+                            Value = property.Value.Value<bool>()
+                        });
+                        break;
+                    }
+
+                    case "BlendMode":
+                    {
+                        int typeRef = asset.AddNameReference(FString.FromString(nameof(EBlendMode)));
+                        int valueRef = asset.AddNameReference(FString.FromString(property.Value.Value<string>()));
+
+                        overrideParameters.Add(new BytePropertyData {
+                            ByteType = BytePropertyType.Long,
+                            EnumType = typeRef,
+                            Name = FName.FromString(property.Name, asset), 
+                            Value = valueRef
+                        });
+                        break;
+                    }
+
+                    case "ShadingModel":
+                    {
+                        int typeRef = asset.AddNameReference(FString.FromString(nameof(EMaterialShadingModel)));
+                        int valueRef = asset.AddNameReference(FString.FromString(property.Value.Value<string>()));
+
+                        overrideParameters.Add(new BytePropertyData {
+                            ByteType = BytePropertyType.Long,
+                            EnumType = typeRef,
+                            Name = FName.FromString(property.Name, asset),
+                            Value = valueRef
+                        });
+                        break;
+                    }
+                }
+            }
+
+            GetProperty<StructPropertyData>(material, "BasePropertyOverrides")
+                .Value = overrideParameters;
+        }
+
+        private void SetScalars(NormalExport material, JObject scalarList)
+        {
             List<(string Name, float Value)> scalars = scalarList.Properties()
                 .Select(p => (p.Name, p.Value.Value<float>()))
                 .ToList();
 
-            // Vectors
-            JObject vectorList = (JObject)settings["vector"];
+            UAsset asset = material.Asset;
+
+            List<StructPropertyData> scalarParameters = new();
+            foreach ((string Name, float Value) scalar in scalars)
+            {
+                scalarParameters.Add(new StructPropertyData(FName.FromString("ScalarParameterValues"))
+                {
+                    StructType = FName.FromString("ScalarParameterValue"),
+                    Value = new List<PropertyData> {
+                        new ScalarParameterPropertyData(FName.FromString("ScalarParameterValues")) {
+                            Value = new FScalarParameter {
+                                ExpressionGUID = Guid.NewGuid(),
+                                ParameterInfo = new FMaterialParameterInfo {
+                                    Association = EMaterialParameterAssociation.GlobalParameter,
+                                    Index = -1,
+                                    Name = FName.FromString(scalar.Name, asset)
+                                },
+                                ParameterValue = scalar.Value
+                            }
+                        }
+                    }
+                });
+            }
+
+            GetProperty<ArrayPropertyData>(material, "ScalarParameterValues")
+                .Value = scalarParameters.ToArray();
+        }
+
+        private void SetVectors(NormalExport material, JObject vectorList)
+        {
             List<(string Name, FLinearColor Value)> vectors = vectorList.Properties()
                 .Select(p => (p.Name, new FLinearColor {
                     R = p.Value["R"].Value<float>(),
@@ -161,6 +249,98 @@ namespace GtaModdingCli.Commands.Classes
                     A = p.Value["A"].Value<float>(),
                 }))
                 .ToList();
+
+            UAsset asset = material.Asset;
+
+            List<StructPropertyData> vectorParameters = new();
+            foreach ((string Name, FLinearColor Value) vector in vectors)
+            {
+                vectorParameters.Add(new StructPropertyData(FName.FromString("VectorParameterValues"))
+                {
+                    StructType = FName.FromString("VectorParameterValue"),
+                    Value = new List<PropertyData> {
+                        new VectorParameterPropertyData(FName.FromString("VectorParameterValues")) {
+                            Value = new FVectorParameter {
+                                ExpressionGUID = Guid.NewGuid(),
+                                ParameterInfo = new FMaterialParameterInfo {
+                                    Association = EMaterialParameterAssociation.GlobalParameter,
+                                    Index = -1,
+                                    Name = FName.FromString(vector.Name, asset)
+                                },
+                                ParameterValue = vector.Value
+                            }
+                        }
+                    }
+                });
+            }
+
+            GetProperty<ArrayPropertyData>(material, "VectorParameterValues")
+                .Value = vectorParameters.ToArray();
+        }
+
+        private void SetTextures(NormalExport material, JObject textureList, string name)
+        {
+            List<(string Type, string Path)> textures = textureList.Properties()
+                .Select(p => (p.Name, p.Value.ToString()))
+                .Where(t => !string.IsNullOrEmpty(t.Item2))
+                .ToList();
+
+            UAsset asset = material.Asset;
+
+            List<StructPropertyData> textureParameters = new();
+            List<StructPropertyData> textureStreaming = new();
+
+            foreach ((string Type, string Path) texture in textures)
+            {
+                // Add new texture
+                FPackageIndex textureIndex = AddTextureImport(asset, ReplaceSubs(texture.Path, name));
+
+                textureParameters.Add(new StructPropertyData(FName.FromString("TextureParameterValues")) {
+                    StructType = FName.FromString("TextureParameterValue"),
+                    Value = new List<PropertyData> {
+                            new TextureParameterPropertyData(FName.FromString("TextureParameterValues")) {
+                                Value = new FTextureParameter {
+                                    ExpressionGUID = Guid.NewGuid(),
+                                    ParameterInfo = new FMaterialParameterInfo {
+                                        Association = EMaterialParameterAssociation.GlobalParameter,
+                                        Index = -1,
+                                        Name = FName.FromString(texture.Type, asset)
+                                    },
+                                    ParameterValue = textureIndex
+                                }
+                            }
+                        }
+                });
+
+                textureStreaming.Add(new StructPropertyData(FName.FromString("TextureStreamingData")) {
+                    StructType = FName.FromString("MaterialTextureInfo"),
+                    Value = new List<PropertyData> {
+                            new MaterialTextureInfoPropertyData(FName.FromString("TextureStreamingData")) {
+                                Value = new FMaterialTextureInfo {
+                                    UVChannelIndex = 0,
+                                    SamplingScale = 1,
+                                    TextureName = FName.FromString(GetObjectName(ReplaceSubs(texture.Path, name)), asset)
+                                }
+                            }
+                        }
+                });
+            }
+
+            GetProperty<ArrayPropertyData>(material, "TextureParameterValues")
+                .Value = textureParameters.ToArray();
+            GetProperty<ArrayPropertyData>(material, "TextureStreamingData")
+                .Value = textureStreaming.ToArray();
+        }
+
+        #endregion Properties setting
+
+        private void SaveNewMaterial(string name, JObject settings, string assetFileName, string outputPath)
+        {
+            // Textures
+            string materialPath = ReplaceSubs(settings["material"].ToString(), name);
+
+            // Overrides
+
 
             UAsset asset = new(assetFileName, UE4Version.VER_UE4_26);
             Export material = asset.Exports.FirstOrDefault(e => e.ObjectName.Value.Value.StartsWith("MI_"));
@@ -173,105 +353,10 @@ namespace GtaModdingCli.Commands.Classes
                 // Change base material
                 ChangeParentMaterial(ne, settings["parent"]?.ToString());
 
-                List<StructPropertyData> scalarParameters = new();
-                List<StructPropertyData> vectorParameters = new();
-                List<StructPropertyData> textureParameters = new();
-                List<StructPropertyData> textureStreaming = new();
-
-                foreach ((string Name, float Value) scalar in scalars)
-                {
-                    // Add name
-                    asset.AddNameReference(FString.FromString(scalar.Name));
-
-                    scalarParameters.Add(new StructPropertyData(FName.FromString("ScalarParameterValues")) {
-                        StructType = FName.FromString("ScalarParameterValue"),
-                        Value = new List<PropertyData> {
-                            new ScalarParameterPropertyData(FName.FromString("ScalarParameterValues")) {
-                                Value = new FScalarParameter {
-                                    ExpressionGUID = Guid.NewGuid(),
-                                    ParameterInfo = new FMaterialParameterInfo {
-                                        Association = EMaterialParameterAssociation.GlobalParameter,
-                                        Index = -1,
-                                        Name = FName.FromString(scalar.Name)
-                                    },
-                                    ParameterValue = scalar.Value
-                                }
-                            }
-                        }
-                    });
-                }
-
-                foreach ((string Name, FLinearColor Value) vector in vectors)
-                {
-                    // Add name
-                    asset.AddNameReference(FString.FromString(vector.Name));
-
-                    vectorParameters.Add(new StructPropertyData(FName.FromString("VectorParameterValues")) {
-                        StructType = FName.FromString("VectorParameterValue"),
-                        Value = new List<PropertyData> {
-                            new VectorParameterPropertyData(FName.FromString("VectorParameterValues")) {
-                                Value = new FVectorParameter {
-                                    ExpressionGUID = Guid.NewGuid(),
-                                    ParameterInfo = new FMaterialParameterInfo {
-                                        Association = EMaterialParameterAssociation.GlobalParameter,
-                                        Index = -1,
-                                        Name = FName.FromString(vector.Name)
-                                    },
-                                    ParameterValue = vector.Value
-                                }
-                            }
-                        }
-                    });
-                }
-
-                foreach ((string Type, string Path) texture in textures)
-                {
-                    // Add name
-                    asset.AddNameReference(FString.FromString(texture.Type));
-
-                    // Add new texture
-                    FPackageIndex textureIndex = AddTextureImport(asset, ReplaceSubs(texture.Path, name));
-
-                    textureParameters.Add(new StructPropertyData(FName.FromString("TextureParameterValues")) {
-                        StructType = FName.FromString("TextureParameterValue"),
-                        Value = new List<PropertyData> {
-                            new TextureParameterPropertyData(FName.FromString("TextureParameterValues")) {
-                                Value = new FTextureParameter {
-                                    ExpressionGUID = Guid.NewGuid(),
-                                    ParameterInfo = new FMaterialParameterInfo {
-                                        Association = EMaterialParameterAssociation.GlobalParameter,
-                                        Index = -1,
-                                        Name = FName.FromString(texture.Type)
-                                    },
-                                    ParameterValue = textureIndex
-                                }
-                            }
-                        }
-                    });
-
-                    textureStreaming.Add(new StructPropertyData(FName.FromString("TextureStreamingData"))
-                    {
-                        StructType = FName.FromString("MaterialTextureInfo"),
-                        Value = new List<PropertyData> {
-                            new MaterialTextureInfoPropertyData(FName.FromString("TextureStreamingData")) {
-                                Value = new FMaterialTextureInfo {
-                                    UVChannelIndex = 0,
-                                    SamplingScale = 1,
-                                    TextureName = FName.FromString(GetObjectName(ReplaceSubs(texture.Path, name)))
-                                }
-                            }
-                        }
-                    });
-                }
-
-                GetProperty<ArrayPropertyData>(ne, "ScalarParameterValues")
-                    .Value = scalarParameters.ToArray();
-                GetProperty<ArrayPropertyData>(ne, "VectorParameterValues")
-                    .Value = vectorParameters.ToArray();
-                GetProperty<ArrayPropertyData>(ne, "TextureParameterValues")
-                    .Value = textureParameters.ToArray();
-                GetProperty<ArrayPropertyData>(ne, "TextureStreamingData")
-                    .Value = textureStreaming.ToArray();
+                SetOverrides(ne, (JObject) settings["overrides"]);
+                SetScalars(ne, (JObject) settings["scalar"]);
+                SetVectors(ne, (JObject) settings["vector"]);
+                SetTextures(ne, (JObject)settings["textures"], name);
             }
 
             if (!Directory.Exists(outputPath))
