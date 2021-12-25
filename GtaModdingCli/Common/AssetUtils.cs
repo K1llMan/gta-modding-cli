@@ -28,6 +28,18 @@ namespace GtaModdingCli.Common
             }
         }
 
+        public static FPackageIndex AddImport(UAsset asset, string path, string type)
+        {
+            string name = path.Split("/").Last();
+
+            asset.AddNameReference(FString.FromString(path));
+            FPackageIndex pathIndex = asset.AddImport(new Import("/Script/CoreUObject", "Package", new FPackageIndex(), path));
+
+            asset.AddNameReference(FString.FromString(type));
+            asset.AddNameReference(FString.FromString(name));
+            return asset.AddImport(new Import("/Script/Engine", type, pathIndex, name));
+        }
+
         public static void ReplaceImport(UAsset asset, Import importName, string newObject)
         {
             Import importPath = importName.OuterIndex.ToImport(asset);

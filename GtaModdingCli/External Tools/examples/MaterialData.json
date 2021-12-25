@@ -3,6 +3,7 @@
     "names": [ "spas12" ],
     "material": "/Game/Weapons/{asset}/MI_{asset}",
     "parent": "/Game/Common/Materials/MI_Emissive_P_Base",
+    "subsurfaceProfile": "/Game/Common/Face/LookDev/SubsurfaceProfiles/SP_Head",
     "overrides": {
         "TwoSided": true,
         "BlendMode": "BLEND_Masked",

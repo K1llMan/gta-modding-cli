@@ -102,17 +102,6 @@ namespace GtaModdingCli.Commands.Classes
                 .ToArray();
         }
 
-        private FPackageIndex AddTextureImport(UAsset asset, string path)
-        {
-            string name = GetObjectName(path.Split("/").Last());
-
-            asset.AddNameReference(FString.FromString(path));
-            FPackageIndex pathIndex = asset.AddImport(new Import("/Script/CoreUObject", "Package", new FPackageIndex(), path));
-
-            asset.AddNameReference(FString.FromString(name));
-            return asset.AddImport(new Import("/Script/Engine", "Texture2D", pathIndex, name));
-        }
-
         private void RenameImport(Import import, UAsset asset, string newName)
         {
             int reference = asset.SearchNameReference(import.ObjectName.Value);
@@ -137,6 +126,29 @@ namespace GtaModdingCli.Commands.Classes
 
         #region Properties setting
 
+        private void SetSubsurfaceProfile(NormalExport material, string path)
+        {
+            if (string.IsNullOrEmpty(path))
+                return;
+
+            UAsset asset = material.Asset;
+            ObjectPropertyData subsurface = (ObjectPropertyData)material.Data
+                .FirstOrDefault(p => p.Name.Value.Value == "SubsurfaceProfile");
+
+            if (subsurface == null)
+            {
+                subsurface = new ObjectPropertyData(FName.FromString("SubsurfaceProfile", asset)) {
+                    Value = AssetUtils.AddImport(asset, path, "SubsurfaceProfile")
+                };
+
+                material.Data.Add(subsurface);
+            }
+            else
+            {
+                AssetUtils.ReplaceImport(asset, subsurface.Value.ToImport(asset), path);
+            }
+        }
+
         private void SetOverrides(NormalExport material, JObject overrideList)
         {
             UAsset asset = material.Asset;
@@ -153,8 +165,6 @@ namespace GtaModdingCli.Commands.Classes
                 {
                     case "OpacityMaskClipValue":
                     {
-
-
                         overrideParameters.Add(new FloatPropertyData {
                             Name = FName.FromString(property.Name, asset), 
                             Value = property.Value.Value<float>()
@@ -293,7 +303,7 @@ namespace GtaModdingCli.Commands.Classes
             foreach ((string Type, string Path) texture in textures)
             {
                 // Add new texture
-                FPackageIndex textureIndex = AddTextureImport(asset, ReplaceSubs(texture.Path, name));
+                FPackageIndex textureIndex = AssetUtils.AddImport(asset, ReplaceSubs(texture.Path, name), "Texture2D");
 
                 textureParameters.Add(new StructPropertyData(FName.FromString("TextureParameterValues")) {
                     StructType = FName.FromString("TextureParameterValue"),
@@ -339,9 +349,6 @@ namespace GtaModdingCli.Commands.Classes
             // Textures
             string materialPath = ReplaceSubs(settings["material"].ToString(), name);
 
-            // Overrides
-
-
             UAsset asset = new(assetFileName, UE4Version.VER_UE4_26);
             Export material = asset.Exports.FirstOrDefault(e => e.ObjectName.Value.Value.StartsWith("MI_"));
 
@@ -353,6 +360,7 @@ namespace GtaModdingCli.Commands.Classes
                 // Change base material
                 ChangeParentMaterial(ne, settings["parent"]?.ToString());
 
+                SetSubsurfaceProfile(ne, settings["subsurfaceProfile"]?.ToString());
                 SetOverrides(ne, (JObject) settings["overrides"]);
                 SetScalars(ne, (JObject) settings["scalar"]);
                 SetVectors(ne, (JObject) settings["vector"]);
